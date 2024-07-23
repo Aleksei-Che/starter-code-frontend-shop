@@ -102,12 +102,18 @@ function cleanCart() {
 
     console.log(cart); 
     cleanCart();
-    
+
     console.log(cart);
 
 // Exercise 3
 function calculateTotal() {
     // Calculate total price of the cart using the "cartList" array
+
+    const preuTotal = () =>{
+        return cart.reduce((acc, item) => acc + (item.price * item.quantity), 0);
+    }
+
+
 }
 
 // Exercise 4
