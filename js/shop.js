@@ -76,6 +76,19 @@ var total = 0;
 
 // Exercise 1
 function buy(id) {
+
+    let productToCart =  products.find(item => item.id === id);
+
+    if (productToCart){
+        let productExist = cart.find(item => item.id === id );
+        if (productExist){
+            productExist.quantity += 1;
+        } else {
+            productExist.quantity = 1;
+            cart.push(productToCart);
+        }
+    } 
+
     // 1. Loop for to the array products to get the item to add to cart
     // 2. Add found product to the cart array
 }
@@ -83,7 +96,14 @@ function buy(id) {
 // Exercise 2
 function cleanCart() {
 
+    cart = [];
+
 }
+
+    console.log(cart); 
+    cleanCart();
+    
+    console.log(cart);
 
 // Exercise 3
 function calculateTotal() {
