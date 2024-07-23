@@ -112,13 +112,21 @@ function calculateTotal() {
     const preuTotal = () =>{
         return cart.reduce((acc, item) => acc + (item.price * item.quantity), 0);
     }
-
-
 }
 
 // Exercise 4
 function applyPromotionsCart() {
     // Apply promotions to each item in the array "cart"
+    cart.forEach(item => {
+
+        if(item.name === 'cooking oil' && item.quantity >=3){
+            item.subtotalWithDiscount = item.quantity * item.price * (1 - 0.20);
+        } else if (item.name === 'Instant cupcake mixture' && item.quantity >= 10){
+            item.subtotalWithDiscount = item.quantity * item.price * (1 - 0.30);
+        } else {
+            delete item.subtotalWithDiscount;
+        }
+    })
 }
 
 // Exercise 5
