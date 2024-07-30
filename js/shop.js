@@ -70,70 +70,153 @@ var products = [
 // ** Don't hesitate to seek help from your peers or your mentor if you still struggle with debugging.
 
 // Improved version of cartList. Cart is an array of products (objects), but each one has a quantity field to define its quantity, so these products are not repeated.
-var cart = [];
+var cart = JSON.parse(localStorage.getItem("cart")) || [];
 
 var total = 0;
+
+// Function to update the cart icon
+function updateCartIcon() {
+    let cartIcon = document.getElementById("count_product");
+    cartIcon.innerHTML = cart.map((x) => x.quantity).reduce((acc, y) => (acc + y), 0);
+}
+
+// Function to update quantity in cart
+// function update(id) {
+//     let search = cart.find(item => item.id === id);
+//     if (search) {
+//         document.getElementById(id).innerHTML = search.quantity; // исправляем доступ к свойству
+//         calculation();
+//     }
+// }
+
+// Функция для вычисления общего количества товаров
+// function calculation() {
+//     let cartIcon = document.getElementById("count_product"); 
+//     cartIcon.innerHTML = cart.map((x) => x.quantity).reduce((acc, y) => (acc + y), 0);
+//     console.log(cart.map((x) => x.quantity).reduce((acc, y) => (acc + y), 0));
+// }
 
 // Exercise 1
 function buy(id) {
 
-    let productToCart =  products.find(item => item.id === id);
+    let selectedItem = products.find(item => item.id === id);
+    // console.log(selectedItem.id);
 
-    if (productToCart){
-        let productExist = cart.find(item => item.id === id );
-        if (productExist){
-            productExist.quantity += 1;
-        } else {
-            productExist.quantity = 1;
-            cart.push(productToCart);
-        }
-    } 
+    let productExist = cart.find(item => item.id === selectedItem.id);
 
+    if (productExist === undefined) {
+
+        selectedItem = {...selectedItem, quantity: 1};
+        cart.push(selectedItem);
+    } else {
+        productExist.quantity += 1;
+    }
+
+    localStorage.setItem("cart", JSON.stringify(cart));
+    console.log(cart);
+
+    // update(selectedItem.id);
+    updateCartIcon();
+
+
+    // console.log(cart);
+ 
     // 1. Loop for to the array products to get the item to add to cart
     // 2. Add found product to the cart array
 }
+
+function displayCart() {
+    updateCartIcon();
+}
+
+window.onload = displayCart;
 
 // Exercise 2
 function cleanCart() {
 
     cart = [];
+    total = 0;
+    localStorage.setItem("cart", JSON.stringify(cart));
+    printCart();
 
 }
 
-    console.log(cart); 
-    cleanCart();
-
-    console.log(cart);
 
 // Exercise 3
 function calculateTotal() {
     // Calculate total price of the cart using the "cartList" array
 
-    const preuTotal = () =>{
-        return cart.reduce((acc, item) => acc + (item.price * item.quantity), 0);
+    total = cart.reduce((acc, item) => acc + (item.totalConDiscuento || item.price * item.quantity), 0);
+    document.getElementById('total_price').innerHTML = total.toFixed(2);
+    return total;
     }
-}
+
 
 // Exercise 4
 function applyPromotionsCart() {
     // Apply promotions to each item in the array "cart"
     cart.forEach(item => {
-
-        if(item.name === 'cooking oil' && item.quantity >=3){
-            item.subtotalWithDiscount = item.quantity * item.price * (1 - 0.20);
-        } else if (item.name === 'Instant cupcake mixture' && item.quantity >= 10){
-            item.subtotalWithDiscount = item.quantity * item.price * (1 - 0.30);
+        if (item.offer && item.quantity >= item.offer.number) {
+            item.totalConDiscuento = item.quantity * item.price * (1 - item.offer.percent / 100);
         } else {
-            delete item.subtotalWithDiscount;
+            delete item.totalConDiscuento;
         }
-    })
+    });
+    calculateTotal();
 }
 
 // Exercise 5
 function printCart() {
-    // Fill the shopping cart modal manipulating the shopping cart dom
+    let cartList = document.getElementById("cart_list");
+    let totalPrice = document.getElementById("total_price");
+    let checkoutButton = document.querySelector(".btn-primary.m-3[href='checkout.html']");
+    let cleanCartButton = document.querySelector(".btn-primary.m-3.clean-cart");
+
+    cartList.innerHTML = '';
+
+    if (cart.length !== 0) {
+        let total = 0;
+
+        cart.forEach(item => {
+            const itemTotal = item.totalConDiscuento || item.price * item.quantity;
+            total += itemTotal;
+
+            let row = `
+                <tr>
+                    <th scope="row">${item.name}</th>
+                    <td>$${item.price.toFixed(2)}</td>
+                    <td>${item.quantity}</td>
+                    <td>$${itemTotal.toFixed(2)}</td>
+                </tr>
+            `;
+            cartList.innerHTML += row;
+        });
+
+        totalPrice.innerHTML = total.toFixed(2);
+        checkoutButton.style.display = 'inline-block';
+        cleanCartButton.style.display = 'inline-block';
+    } else {
+        let emptyMessage = `
+            <tr>
+                <td colspan="4" class="text-center">
+                    <h2>Cart is empty</h2>
+                    <a href="index.html">
+                       <button class="btn btn-primary">Back to home</button>
+                    </a>
+                </td>
+            </tr>
+        `;
+        cartList.innerHTML = emptyMessage;
+        totalPrice.innerHTML = '0.00';
+        checkoutButton.style.display = 'none';
+        cleanCartButton.style.display = 'none';
+    }
 }
 
+document.getElementById("cartButton").addEventListener("click", printCart);
+
+
+        
 
 // ** Nivell II **
 
