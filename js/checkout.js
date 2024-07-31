@@ -45,7 +45,7 @@ function validate(event) {
 		removeError(fName, errorName )
 	}
 
-	const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+	const emailPattern = /[^@ \t\r\n]+@[^@ \t\r\n]+\.[^@ \t\r\n]+/;
     if (fEmail.value.length < 3 || !emailPattern.test(fEmail.value)) {
         createError(fEmail, errorEmail);
     } else {

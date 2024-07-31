@@ -80,21 +80,6 @@ function updateCartIcon() {
     cartIcon.innerHTML = cart.map((x) => x.quantity).reduce((acc, y) => (acc + y), 0);
 }
 
-// Function to update quantity in cart
-// function update(id) {
-//     let search = cart.find(item => item.id === id);
-//     if (search) {
-//         document.getElementById(id).innerHTML = search.quantity; // исправляем доступ к свойству
-//         calculation();
-//     }
-// }
-
-// Функция для вычисления общего количества товаров
-// function calculation() {
-//     let cartIcon = document.getElementById("count_product"); 
-//     cartIcon.innerHTML = cart.map((x) => x.quantity).reduce((acc, y) => (acc + y), 0);
-//     console.log(cart.map((x) => x.quantity).reduce((acc, y) => (acc + y), 0));
-// }
 
 // Exercise 1
 function buy(id) {
@@ -154,31 +139,42 @@ function calculateTotal() {
 
 // Exercise 4
 function applyPromotionsCart() {
-    // Apply promotions to each item in the array "cart"
     cart.forEach(item => {
         if (item.offer && item.quantity >= item.offer.number) {
-            item.totalConDiscuento = item.quantity * item.price * (1 - item.offer.percent / 100);
+            item.totalConDescuento = item.quantity * item.price * (1 - item.offer.percent / 100);
+            console.log(`Discount applied to ${item.name}: $${item.totalConDescuento.toFixed(2)}`);
         } else {
-            delete item.totalConDiscuento;
+            delete item.totalConDescuento;
+            console.log(`No discount for ${item.name}`);
         }
     });
     calculateTotal();
 }
 
 // Exercise 5
+
+
 function printCart() {
+    
+    applyPromotionsCart();
+
+    
     let cartList = document.getElementById("cart_list");
     let totalPrice = document.getElementById("total_price");
     let checkoutButton = document.querySelector(".btn-primary.m-3[href='checkout.html']");
     let cleanCartButton = document.querySelector(".btn-primary.m-3.clean-cart");
 
+    
     cartList.innerHTML = '';
 
+    
     if (cart.length !== 0) {
+        
         let total = 0;
 
+        
         cart.forEach(item => {
-            const itemTotal = item.totalConDiscuento || item.price * item.quantity;
+            const itemTotal = item.totalConDescuento || item.price * item.quantity;
             total += itemTotal;
 
             let row = `
@@ -186,13 +182,16 @@ function printCart() {
                     <th scope="row">${item.name}</th>
                     <td>$${item.price.toFixed(2)}</td>
                     <td>${item.quantity}</td>
-                    <td>$${itemTotal.toFixed(2)}</td>
+                    <td>${item.totalConDescuento ? `$${item.totalConDescuento.toFixed(2)}` : ""}</td>
+                    <td><button type="button" class="btn btn-danger" onclick="removeFromCart(${item.id})">-</button></td>
                 </tr>
             `;
             cartList.innerHTML += row;
         });
 
+        
         totalPrice.innerHTML = total.toFixed(2);
+        
         checkoutButton.style.display = 'inline-block';
         cleanCartButton.style.display = 'inline-block';
     } else {
@@ -215,15 +214,27 @@ function printCart() {
 
 document.getElementById("cartButton").addEventListener("click", printCart);
 
-
-        
-
 // ** Nivell II **
 
 // Exercise 7
 function removeFromCart(id) {
+    cart = cart
+        .map((product) => {
+            if (product.id === id) {
+                product.quantity--;
+            }
+            if (product.quantity <= 0) {
+                return null;
+            }
+            return product;
+        })
+        .filter((product) => product !== null);
 
+    document.getElementById('count_product').innerHTML = cart.length;
+    localStorage.setItem("cart", JSON.stringify(cart));
+    printCart();
 }
+
 
 function open_modal() {
     printCart();
